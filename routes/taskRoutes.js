@@ -1,65 +1,25 @@
 const express = require('express');
-const router = express.Router();
-const Task = require('../models/Task'); // Import the model
+const mongoose = require('mongoose');
+const cors = require('cors');
+const taskRoutes = require('./routes/taskRoutes'); // Import routes
 
-// CREATE - Add new task
-router.post('/', async (req, res) => {
-  try {
-    const task = new Task({
-      text: req.body.text
-    });
-    const savedTask = await task.save();
-    res.status(201).json(savedTask);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// MongoDB Connection
+mongoose.connect('mongodb+srv://parvathys2026:Parvathy33@sample.99kv3.mongodb.net/sampleDB')
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log(err));
+
+// Routes
+app.use('/api/tasks', taskRoutes); // Use the task routes
+
+// Basic health check
+app.get('/', (req, res) => {
+  res.send('Todo List Backend is Running');
 });
 
-// READ - Get all tasks
-router.get('/', async (req, res) => {
-  try {
-    const tasks = await Task.find();
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// READ - Get single task
-router.get('/:id', async (req, res) => {
-  try {
-    const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-    res.json(task);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// UPDATE - Update task
-router.put('/:id', async (req, res) => {
-  try {
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
-    if (!updatedTask) return res.status(404).json({ message: 'Task not found' });
-    res.json(updatedTask);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// DELETE - Delete task
-router.delete('/:id', async (req, res) => {
-  try {
-    const deletedTask = await Task.findByIdAndDelete(req.params.id);
-    if (!deletedTask) return res.status(404).json({ message: 'Task not found' });
-    res.json({ message: 'Task deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-module.exports = router;
+app.listen(3001, () => console.log('Server running on http://localhost:3001'));
