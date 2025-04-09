@@ -1,26 +1,28 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const taskRoutes = require("./routes/taskRoutes"); // Correct import path
-
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 const app = express();
-const PORT = 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://parvathys2026:Parvathy33@sample.99kv3.mongodb.net/sampleDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log("Connected to MongoDB"))
-.catch(err => console.error("Database connection error:", err));
+// MongoDB Connection
+mongoose.connect('mongodb+srv://parvathys2026:Parvathy33@sample.99kv3.mongodb.net/sampleDB')
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log(err));
 
-// Use imported routes
-app.use("/api/tasks", taskRoutes);
+// Task Model
+const Task = mongoose.model('Task', { text: String, completed: Boolean });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+// Routes
+app.get('/api/tasks', async (req, res) => {
+  res.json(await Task.find());
 });
+
+app.post('/api/tasks', async (req, res) => {
+  const task = new Task(req.body);
+  res.json(await task.save());
+});
+
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
