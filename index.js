@@ -25,4 +25,9 @@ app.post('/api/tasks', async (req, res) => {
   res.json(await task.save());
 });
 
+app.delete('/api/tasks/:id', async (req, res) => {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ status: 'deleted' });
+  });
+
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
