@@ -1,33 +1,25 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
 const app = express();
+const PORT = 3001;
 
-// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); 
 
-// MongoDB Connection
-mongoose.connect('mongodb+srv://parvathys2026:Parvathy33@sample.99kv3.mongodb.net/sampleDB')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log(err));
+// Connect to MongoDB
+mongoose.connect("mongodb+srv://parvathys2026:Parvathy33@cluster0.cvwrw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.error("Database connection error:", err));
 
-// Task Model
-const Task = mongoose.model('Task', { text: String, completed: Boolean });
+// Import routes
+const itemRoutes = require("./routes/ItemRoutes");
+app.use("/item", itemRoutes);
 
-// Routes
-app.get('/api/tasks', async (req, res) => {
-  res.json(await Task.find());
-});
-
-app.post('/api/tasks', async (req, res) => {
-  const task = new Task(req.body);
-  res.json(await task.save());
-});
-
-app.delete('/api/tasks/:id', async (req, res) => {
-    await Task.findByIdAndDelete(req.params.id);
-    res.json({ status: 'deleted' });
-  });
-
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+}); 
